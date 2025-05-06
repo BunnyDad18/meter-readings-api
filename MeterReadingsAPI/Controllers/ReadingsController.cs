@@ -55,26 +55,7 @@ namespace MeterReadingsAPI.Controllers
 		[HttpGet("get-customers")]
 		public async Task<ActionResult<List<Customer>>> GetCustomers()
 		{
-			return Ok(await _context.Customers.ToListAsync());
-		}
-
-		[HttpGet("get-customers-with-readings")]
-		public async Task<ActionResult<List<CustomerWithReadings>>> GetCustomersWithReadings()
-		{
-			List<Customer> customers = await _context.Customers.ToListAsync();
-			List<CustomerWithReadings> customerAndReadings = new ();
-			foreach (Customer customer in customers)
-			{
-				customerAndReadings.Add(new CustomerWithReadings(customer, new List<Reading>()));
-			}
-			List<Reading> readings = await _context.Readings.ToListAsync();
-			foreach(Reading reading in readings)
-			{
-				customerAndReadings.First(i => i.Customer.AccountId == reading.AccountId).Readings.Add(reading);
-			}
-			return Ok(customerAndReadings);
+			return Ok(await _context.Customers.Include(c => c.Readings).ToListAsync());
 		}
 	}
-
-	public record CustomerWithReadings(Customer Customer, List<Reading> Readings);
 }
